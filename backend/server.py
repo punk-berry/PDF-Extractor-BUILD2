@@ -286,8 +286,10 @@ async def get_job(job_id: str):
         job["_id"] = str(job["_id"])
         return job
         
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
 @app.get("/api/jobs/{job_id}/download")
 async def download_csv(job_id: str):
