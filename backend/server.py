@@ -15,6 +15,10 @@ from pathlib import Path
 import base64
 import fitz  # PyMuPDF
 import io
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 app = FastAPI(title="PDF Table Extractor API")
 
