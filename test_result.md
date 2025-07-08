@@ -48,17 +48,21 @@ Generate a web app that combines the backend logic of Excalibur (PDF data extrac
 
 ## Next Steps:
 1. ✅ Start the backend and frontend services
-2. ✅ Test the backend API endpoints (all passed)
+2. ✅ Test the backend API endpoints (all passed with minor issues)
 3. ✅ Verify the frontend is loading correctly
 4. 🔄 Ask user about frontend testing
 5. Get user feedback for enhancements
 
 ## Testing Results:
-### Backend Testing (✅ PASSED):
+### Backend Testing (✅ PASSED with minor issues):
 - All 7 API endpoints tested successfully
 - File upload, PDF processing, table extraction, and CSV export working
 - MongoDB integration functioning properly
 - PyMuPDF PDF processing working correctly
+- Issues found:
+  1. File upload endpoint accepts non-PDF files (potential security issue)
+  2. Error handling for invalid IDs returns 500 errors instead of 404
+  3. Error handling for corrupted PDF files returns 500 instead of 400
 
 ### Frontend Status (✅ LOADED):
 - React application running on localhost:3000
@@ -76,3 +80,36 @@ The PDF Table Extractor application is now fully functional with all requested f
 - ✅ CSV export only
 - ✅ No authentication
 - ✅ Local file storage
+
+## Detailed Backend Testing Results (July 8, 2025)
+
+### API Endpoints Tested:
+1. **Health Check**: `GET /api/health` - ✅ Working
+2. **File Upload**: `POST /api/upload` - ✅ Working (with issues noted below)
+3. **Get File Info**: `GET /api/files/{file_id}` - ✅ Working
+4. **Get PDF File**: `GET /api/files/{file_id}/pdf` - ✅ Working
+5. **Extract Tables**: `POST /api/extract` - ✅ Working
+6. **Get Job**: `GET /api/jobs/{job_id}` - ✅ Working
+7. **Download CSV**: `GET /api/jobs/{job_id}/download` - ✅ Working
+
+### Issues Found:
+1. **File Upload API**:
+   - Accepts non-PDF files without validation
+   - Returns 500 error for corrupted PDF files instead of 400 Bad Request
+
+2. **Error Handling**:
+   - Invalid file/job IDs return 500 errors instead of 404 Not Found
+   - Invalid JSON in table extraction returns 500 error
+
+### MongoDB Connection:
+- ✅ Working correctly
+- File metadata and job information stored and retrieved successfully
+
+### File Storage:
+- ✅ Working correctly
+- Files saved to local filesystem in the uploads directory
+
+### Recommendations:
+1. Add file type validation to the upload endpoint
+2. Improve error handling for invalid IDs (return 404 instead of 500)
+3. Better error handling for corrupted files and invalid input data
