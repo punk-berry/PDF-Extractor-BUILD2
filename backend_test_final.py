@@ -447,7 +447,8 @@ def run_all_tests():
     print("\n⚠️ Issues Found:")
     print("1. The file upload endpoint accepts non-PDF files, which could lead to processing errors later")
     print("2. The file upload endpoint has issues with corrupted PDF files (returns 500 instead of 400)")
-    print("3. Error handling for invalid JSON in table extraction could be improved")
+    print("3. Error handling for invalid IDs returns 500 errors instead of 404 in some cases")
+    print("4. Error handling for invalid JSON in table extraction could be improved")
 
 if __name__ == "__main__":
     run_all_tests()
