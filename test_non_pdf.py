@@ -18,7 +18,7 @@ def test_file_upload_non_pdf():
     
     # Upload the file
     with open(test_txt_path, "rb") as f:
-        files = {"file": (f.name, f, "text/plain")}
+        files = {"file": ("test_file.txt", f, "text/plain")}
         response = requests.post(f"{BASE_URL}/api/upload", files=files)
     
     print(f"Status Code: {response.status_code}")
