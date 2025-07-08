@@ -313,8 +313,10 @@ async def download_csv(job_id: str):
             filename=f"extracted_tables_{job_id}.csv"
         )
         
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=f"Download failed: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn
