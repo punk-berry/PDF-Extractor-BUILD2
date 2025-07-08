@@ -145,8 +145,10 @@ async def get_file_info(file_id: str):
         file_info["_id"] = str(file_info["_id"])
         return file_info
         
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
 @app.get("/api/files/{file_id}/pdf")
 async def get_pdf_file(file_id: str):
