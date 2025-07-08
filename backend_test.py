@@ -174,7 +174,8 @@ def test_csv_download():
     print(f"Content Length: {len(response.content)} bytes")
     
     assert response.status_code == 200
-    assert response.headers.get("Content-Type") == "text/csv"
+    # Check if Content-Type contains 'csv' (could be 'text/csv' or 'application/csv')
+    assert 'csv' in response.headers.get("Content-Type", "").lower()
     assert len(response.content) > 0
     
     # Save the downloaded CSV for verification
