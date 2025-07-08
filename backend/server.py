@@ -73,6 +73,15 @@ async def health_check():
 @app.post("/api/upload")
 async def upload_file(file: UploadFile = File(...)):
     try:
+        # Validate file type
+        if not file.filename.lower().endswith('.pdf'):
+            raise HTTPException(status_code=400, detail="Only PDF files are allowed")
+        
+        # Validate file size (limit to 50MB)
+        content = await file.read()
+        if len(content) > 50 * 1024 * 1024:  # 50MB
+            raise HTTPException(status_code=400, detail="File size too large. Maximum 50MB allowed")
+        
         # Generate unique file ID
         file_id = str(uuid.uuid4())
         
@@ -80,7 +89,6 @@ async def upload_file(file: UploadFile = File(...)):
         file_path = UPLOAD_FOLDER / f"{file_id}_{file.filename}"
         
         async with aiofiles.open(file_path, 'wb') as f:
-            content = await file.read()
             await f.write(content)
         
         # Get PDF info using PyMuPDF
@@ -89,6 +97,9 @@ async def upload_file(file: UploadFile = File(...)):
             total_pages = len(pdf_doc)
             pdf_doc.close()
         except Exception as e:
+            # Clean up the file if PDF is invalid
+            if file_path.exists():
+                file_path.unlink()
             raise HTTPException(status_code=400, detail=f"Invalid PDF file: {str(e)}")
         
         # Save file info to database
@@ -101,7 +112,13 @@ async def upload_file(file: UploadFile = File(...)):
             "file_size": len(content)
         }
         
-        await db.files.insert_one(file_info)
+        try:
+            await db.files.insert_one(file_info)
+        except Exception as e:
+            # Clean up the file if database insert fails
+            if file_path.exists():
+                file_path.unlink()
+            raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
         
         return {
             "file_id": file_id,
@@ -110,8 +127,12 @@ async def upload_file(file: UploadFile = File(...)):
             "file_size": len(content)
         }
         
+    except HTTPException:
+        # Re-raise HTTP exceptions
+        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        # Catch all other exceptions
+        raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
 
 @app.get("/api/files/{file_id}")
 async def get_file_info(file_id: str):
