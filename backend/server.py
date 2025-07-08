@@ -167,8 +167,10 @@ async def get_pdf_file(file_id: str):
             filename=file_info["filename"]
         )
         
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=f"Server error: {str(e)}")
 
 @app.post("/api/extract")
 async def extract_tables(
