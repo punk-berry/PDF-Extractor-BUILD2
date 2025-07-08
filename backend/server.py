@@ -179,7 +179,10 @@ async def extract_tables(
 ):
     try:
         # Parse selections
-        selections_data = json.loads(selections)
+        try:
+            selections_data = json.loads(selections)
+        except json.JSONDecodeError:
+            raise HTTPException(status_code=400, detail="Invalid selections format")
         
         # Get file info
         file_info = await db.files.find_one({"file_id": file_id})
@@ -212,8 +215,10 @@ async def extract_tables(
             "csv_data": csv_data
         }
         
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=f"Extraction failed: {str(e)}")
 
 async def extract_tables_from_selections(file_path: Path, selections: List[dict]) -> str:
     """Extract tables from PDF based on manual selections"""
